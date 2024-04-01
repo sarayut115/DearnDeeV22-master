@@ -23,6 +23,7 @@
     "d3": "^7.9.0",
     "expo": "~50.0.4",
     "expo-bluetooth": "^0.0.0",
+    "expo-firebase-core": "^6.0.0",
     "expo-firebase-recaptcha": "^2.3.1",
     "expo-image": "~1.10.6",
     "expo-linear-gradient": "~12.7.2",

@@ -160,7 +160,7 @@ const LoginPage = () => {
       <View style={styles.or}>
         <Text style={[styles.text2, styles.text2Layout]}>หรือ</Text>
       </View>
-      <TouchableOpacity style={[styles.loginSocialMedia, styles.groupChildLayout]} onPress={() => navigation.navigate("LoginPage")}>
+      <TouchableOpacity style={[styles.loginSocialMedia, styles.groupChildLayout]} onPress={() => navigation.navigate("Otp")}>
         <View style={[styles.rectangleParent, styles.groupChildLayout]}>
           <View style={[styles.groupChild, styles.childLayout]} />
           <Image

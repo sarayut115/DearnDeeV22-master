@@ -1,46 +1,48 @@
-import { ScrollView, Text, StyleSheet, View, Image, TouchableOpacity, Modal, TextInput, Button, Alert } from 'react-native';
-import React, { useRef, useState } from 'react';
+import { ScrollView, Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { firebase } from '../configotp';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import { firebaseConfig } from '../config';
-import firebase from 'firebase/compat/app';
-import { style } from 'd3';
 
 const Otp = () => {
-
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [verificationId, setVerificationId] = useState('');
     const [code, setCode] = useState('');
-    const [verificatinId, setVerificatinId] = useState(null);
     const recaptchaVerifier = useRef(null);
 
-    const sendVerification = () => {
-        const phoneProvider = new firebase.auth.PhoneAuthCredential();
-        phoneProvider
-            .verifyPhoneNumber(phoneNumber, recaptchaVerifier.current)
-            .then(setVerificatinId);
-        setPhoneNumber('');
-    }
+    const sendVerification = async () => {
+        try {
+            const phoneProvider = new firebase.auth.PhoneAuthProvider();
+            const verificationId = await phoneProvider.verifyPhoneNumber(
+                phoneNumber,
+                recaptchaVerifier.current
+            );
+            setVerificationId(verificationId);
+            alert('Verification code has been sent to your phone.');
+        } catch (error) {
+            console.log(error);
+            alert('Failed to send verification code. Please try again.');
+        }
+    };
 
-    const confirmCode = () => {
-        const credential = firebase.auth.PhoneAuthProvider.credential(
-            verificatinId,
-            code
-        );
-        firebase.auth().signInWithCredential(credential)
-            .then(() => {
-                setCode('');
-                Alert.alert('Login Successful', 'Welcome to Dashboard');
-            })
-            .catch((error) => {
-                //show an alert in case of error
-                Alert.alert('Error', 'Something went wrong. Please try again later.');
-            })
-    }
+    const confirmCode = async () => {
+        try {
+            const credential = firebase.auth.PhoneAuthProvider.credential(
+                verificationId,
+                code
+            );
+            await firebase.auth().signInWithCredential(credential);
+            alert('Successfully signed in with OTP.');
+        } catch (error) {
+            console.log(error);
+            alert('Failed to sign in. Please check the verification code.');
+        }
+    };
 
     return (
         <View style={styles.container}>
             <FirebaseRecaptchaVerifierModal
                 ref={recaptchaVerifier}
-                firebaseConfig={firebaseConfig}
+                firebaseConfig={firebase.app().options}
             />
             <Text style={styles.otpText}>OTP</Text>
             <TextInput
@@ -51,24 +53,20 @@ const Otp = () => {
                 style={styles.textInput}
             />
             <TouchableOpacity style={styles.sendVerification} onPress={sendVerification} >
-                <Text style={styles.buttonText}>
-                    Send Verification
-                </Text>
+                <Text style={styles.buttonText}>Send Verification</Text>
             </TouchableOpacity>
             <TextInput
-                placeholder='Confirm Code'
+                placeholder='Enter Verification Code'
                 onChangeText={setCode}
                 keyboardType='number-pad'
                 style={styles.textInput}
             />
             <TouchableOpacity style={styles.sendCode} onPress={confirmCode} >
-                <Text style={styles.buttonText}>
-                    Confirm Verification
-                </Text>
+                <Text style={styles.buttonText}>Confirm Verification</Text>
             </TouchableOpacity>
         </View>
-    )
-}
+    );
+};
 
 export default Otp;
 
